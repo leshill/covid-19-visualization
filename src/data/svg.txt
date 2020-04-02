@@ -1,0 +1,6 @@
+height
+width
+x
+y
+preserveAspectRatio
+viewBox
