@@ -1,0 +1,121 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative './type_map'
+
+path = ARGV[0].sub(/\..+\z/, '')
+svg_name = "#{path}.svg"
+(*dirs, name) = path.split('/')
+name.capitalize!
+tsx_name = "#{(dirs << name).join('/')}.tsx"
+
+lines = File.readlines(svg_name)
+out = File.open(tsx_name, 'wb')
+
+def adjust_svg_props(line)
+  hmatch = line.match(/ height\s*=\s*"(.+)"/)
+  line = line.sub(/ height\s*=\s*".+"/, '')
+  wmatch = line.match(/ width\s*=\s*"(.+)"/)
+  line = line.sub(/ width\s*=\s*".+"/, '')
+  svg = line.match(/\A(.*)<svg(.+)/)
+  if hmatch[1] && wmatch[1]
+    viewbox = %({viewBox: "0 0 #{wmatch[1]} #{hmatch[1]}"})
+    "#{svg[1]}<svg {...{...#{viewbox}, ...props}}#{svg[2]}\n"
+  else
+    "#{svg[1]}<svg {...props}#{svg[2]}\n"
+  end
+end
+
+ID_REGEX = / id\s*=\s*"([^"]+)"/.freeze
+FIPS_REGEX = /FIPS_(\d+)/.freeze
+
+def convert_ids(line)
+  if (match = line.match(ID_REGEX))
+    fips = match[1].match(FIPS_REGEX)
+    return line.sub(match[1], fips[1]) if fips
+
+    puts "unmatched id: #{match[1]}"
+  end
+
+  line
+end
+
+def map_props(line)
+  while (match = PROP_REGEX.match(line))
+    line = line.sub(match[1], PROP_MAP[match[1]])
+  end
+  line
+end
+
+class Capitalizer
+  CAPITALIZE = %w[g p s].freeze
+
+  def self.process(line)
+    new.process line
+  end
+
+  def process(line)
+    buffer = []
+    line.chars.each_with_index do |char, index|
+      char = capitalize!(char, index)
+      buffer << char
+    end
+    buffer.join
+  end
+
+  private
+
+  def capitalize!(char, index)
+    if char == '<'
+      @last_lt = index
+    elsif last_lt != -1
+      char.upcase! if CAPITALIZE.include?(char)
+      @last_lt = -1 if char != '/'
+    end
+    char
+  end
+
+  def buffer
+    @buffer ||= []
+  end
+
+  def last_lt
+    @last_lt ||= -1
+  end
+end
+
+PREAMBLE = <<~CODE_HEAD
+  import React from 'react';
+  import Svg, { G, Path, SvgProps } from 'Svg';
+
+  const #{name} : React.FC<SvgProps>
+  = (props) => {
+
+    return (
+CODE_HEAD
+
+POSTAMBLE = <<~CODE_TAIL
+    );
+  };
+
+  export default #{name};
+CODE_TAIL
+
+out.write PREAMBLE
+
+check_outer_svg = true
+
+lines.each do |line|
+  next if line.match(/\A<(\?xml)|(!DOCTYPE) /)
+
+  line.gsub!(' xmlns="http://www.w3.org/2000/svg"', '') if line.match(/xmlns/)
+
+  line = adjust_svg_props(line) if check_outer_svg && line.match(/\A(.*)<svg/)
+  line = Capitalizer.process(line)
+  line = map_props(line)
+  line = convert_ids(line)
+  out.write line
+end
+
+out.write POSTAMBLE
+out.close
