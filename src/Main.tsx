@@ -38,7 +38,7 @@ function Main() {
       </div>
       <div className="github-container w-100">
         <span className="mr-3">
-          Source code:
+          FAQ and Source code:
         </span>
         <a
           className="btn btn-sm github"
