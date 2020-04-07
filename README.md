@@ -19,7 +19,7 @@ commit). Once testing is happening on a wide scale across the US, case counts
 choice of `logN` seems a reasonable compromise to show incremental jumps as the
 numbers increase, particularly at the smaller end of the scale.
 
-Disclaimer: I am not a data scientist or an epidemiologist.
+Disclaimer: I am not a data scientist nor am I an epidemiologist.
 
 ### What about the data for Kansas City and New York City?
 
