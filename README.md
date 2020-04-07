@@ -8,6 +8,37 @@ The New York Times is providing data files with the cumulative counts of Covid-1
 
 Made with :heart: in Seattle by [@leshill](https://twitter.com/leshill)
 
+## FAQ
+
+### Why is the scale for the colors `logN`?
+
+Epidemiologists point out that the numbers reported for the US are known to be
+problematic due to very limited testing of the population (still true as of this
+commit). Once testing is happening on a wide scale across the US, case counts
+(and even death counts) will be more representative of the actual spread. The
+choice of `logN` seems a reasonable compromise to show incremental jumps as the
+numbers increase, particularly at the smaller end of the scale.
+
+Disclaimer: I am not a data scientist or an epidemiologist.
+
+### What about the data for Kansas City and New York City?
+
+The NYT data has handled these two cities differently than other data. Check the
+NYT repo for more details, the app does the following:
+
+In the case of NYC, the data is reported for the entire city (and not for each
+of the five boroughs). Unfortunately, the map shows the five boroughs. Rather
+than attempt to split the count into 5, each borough is shown with the total
+for NYC. NYC should be considered equivalent to other counties.
+
+In the case of KC, the data is reported for the entire city across four
+counties, and for each of the four counties _excluding_ the city. Not ideal. For
+now, the data from the city is added to the count for each county. An alternative
+would be to sum up the counties and the city and use that total across the four
+counties and consider KC equivalent to other counties.
+
+Hmmm, I should probably do that :upside\_down\_face:
+
 ## Colophon
 
 **Covid-19 Map** is an example of a JAM-stack app&mdash; **J**avaScript **A**PI and **M**arkup.
