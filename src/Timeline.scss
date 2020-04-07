@@ -1,0 +1,114 @@
+@mixin circle {
+  display: inline-block;
+  height: 6px;
+  width: 6px;
+  border-radius: 50%;
+  background-color: darkgrey;
+  position: absolute;
+  top: 50%;
+  margin-left: -3px;
+  margin-top: -3px;
+}
+
+@mixin label {
+  display: inline-block;
+  position: absolute;
+  top: 0%;
+}
+
+@mixin column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin timeline-head {
+}
+
+.timeline-container {
+  @include column;
+  width: 100%;
+
+  .controls {
+    .btn {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+  }
+
+  .timeline-head, .timeline-head-left, .timeline-head-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    small {
+      padding: .25em 0;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .timeline-head, .timeline-head-left, .timeline-head-right {
+      small {
+        padding: 0;
+      }
+    }
+
+    .timeline-head-left {
+      justify-content: flex-end;
+    }
+
+    .timeline-head-right {
+      justify-content: flex-start;
+    }
+  }
+}
+
+.timeline {
+  @include column;
+  height: 4rem;
+  width: 100%;
+
+  .timeline-line {
+    position: relative;
+    height: 2px;
+    width: 80%;
+    background-color: darkgrey;
+  }
+
+  .timeline-circle {
+    @include circle;
+  }
+
+  .timeline-end {
+    left: 100%;
+    @include circle;
+  }
+
+  .timeline-start {
+    left: 0%;
+    @include circle;
+  }
+
+  .timeline-label {
+    top: 100%;
+    margin-left: -40px;
+    margin-top: .5rem;
+    @include label;
+  }
+
+  .timeline-label-end {
+    left: 100%;
+    margin-left: -40px;
+    margin-top: -1.5rem;
+    @include label;
+  }
+
+  .timeline-label-start {
+    left: 0%;
+    margin-left: -40px;
+    margin-top: -1.5rem;
+    @include label;
+  }
+};

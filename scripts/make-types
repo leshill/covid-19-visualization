@@ -1,0 +1,106 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'active_support/all'
+
+GROUPS = %w[presentation core path svg].freeze
+
+MID_WORDS = %w[can cue dbl drag duration focus key loaded load mouse
+               rate time volume].freeze
+
+MID_REGEX = %r{\Aon(#{MID_WORDS.join('|')}).+\z}.freeze
+STOP_WORDS = %w[cancel drag focus load].freeze
+STOP_REGEX = %r{\Aon(#{STOP_WORDS.join('|')})\z}.freeze
+
+REACT_MAP = {
+  'class' => 'className',
+  'tabindex' => 'tabIndex'
+}.freeze
+
+REACT_WORDS = REACT_MAP.keys.freeze
+
+POSTAMBLE = <<~DEFAULT_EXPORT
+
+  export default CoreProps;
+DEFAULT_EXPORT
+
+MAP_POSTAMBLE = <<~PROP_KEYS_REGEX
+
+  PROP_KEYS = PROP_MAP.keys.freeze
+  PROP_REGEX = Regexp.new(%r{\\\s(\#{PROP_KEYS.join('|')})\\\s*=}).freeze
+
+PROP_KEYS_REGEX
+
+def camelize_events(lines, &block)
+  lines.each do |name|
+    orig = name.chop
+    text = name.chop
+    unless text.match(STOP_REGEX)
+      match = text.match(MID_REGEX)
+      if match
+        old = match[1]
+        repl = "#{old}_"
+        text.gsub!(old, repl)
+      end
+    end
+    on = text.sub('on', 'on_')
+    camel = on.camelize(:lower)
+    block.yield orig, camel
+  end
+end
+
+def camelize_snake(lines, &block)
+  lines.each do |name|
+    orig = name.chop
+    text = name.chop
+
+    if REACT_WORDS.include?(text)
+      yield orig, REACT_MAP[text]
+    else
+      underscore = text.gsub('-', '_')
+      camel = underscore.camelize(:lower)
+      block.yield orig, camel
+    end
+  end
+end
+
+types = File.open('src/svgTypes.ts', 'wb')
+map = File.open('scripts/type_map.rb', 'wb')
+map.write "PROP_MAP = {\n"
+
+GROUPS.each do |group|
+  lines = File.readlines("src/data/#{group}.txt")
+
+  types.write "export interface #{group.capitalize}Props {\n"
+
+  camelize_snake lines do |_orig, camel|
+    types.write "  #{camel}?: any,\n"
+  end
+
+  types.write "}\n\n"
+
+  camelize_snake lines do |orig, camel|
+    map.write %( '#{orig}' => '#{camel}',\n) if orig != camel
+  end
+end
+
+lines = File.readlines('src/data/event.txt')
+
+types.write "export interface EventProps {\n"
+
+camelize_events(lines) do |_orig, camel|
+  types.write "  #{camel}?: any,\n"
+end
+
+types.write "}\n\n"
+
+camelize_events lines do |orig, camel|
+  map.write %( '#{orig}' => '#{camel}',\n) if orig != camel
+end
+
+types.write POSTAMBLE
+types.close
+
+map.write "}.freeze\n"
+map.write MAP_POSTAMBLE
+map.close
