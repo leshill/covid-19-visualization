@@ -91,7 +91,7 @@ function* monitorGitHub() {
 var stepChannel: EventChannel<"next">;
 
 function* runSteps() {
-  stepChannel = interval(1000);
+  stepChannel = interval(750);
 
   while (true) {
     yield take(stepChannel);
