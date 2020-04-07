@@ -1,5 +1,10 @@
-import React, { useState } from 'react';
+import React, { useCallback } from 'react';
+import { useSelector } from 'react-redux';
+
 import * as SvgTypes from './svgTypes';
+import { RootState } from 'reducers';
+import reds from 'reds';
+import { DataPoint } from 'loadData';
 
 type SvgCore = SvgTypes.CoreProps &
                SvgTypes.EventProps &
@@ -20,20 +25,26 @@ export const Svg: React.FC<SvgProps> = (props) => {
 type PathPropsType = SvgTypes.PathProps & SvgCore;
 
 export const Path: React.FC<PathPropsType> = (props) => {
+  const fips = props.id;
+
+  const selector = useCallback((state: RootState) => {
+    if (fips) {
+      const data = state.flow.currentDataByFips[fips];
+      if (data) {
+        return data;
+      }
+    }
+
+    return {} as DataPoint;
+  }, [fips]);
+  const data = useSelector(selector);
   const {children, ...rest} = props;
 
-  const [clicked, setClicked] = useState(false);
-
-  const fill = (event: React.MouseEvent) => {
-    setClicked(!clicked);
-    event.preventDefault();
+  if (fips && data.cases) {
+    rest.style = {fill: reds(data.cases)};
   }
 
-  if (clicked) {
-    rest.style = {fill: 'red'} as any;
-  }
-
-  return <path onClick={fill} {...rest}>
+  return <path {...rest}>
     { children }
   </path>;
 }
