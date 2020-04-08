@@ -39,7 +39,7 @@ considered a single joint entry.
 
 ## Colophon
 
-**Covid-19 Map** is an example of a JAM-stack app&mdash; **J**avaScript **A**PI and **M**arkup.
+**Covid-19 Map** is an example of a JAM-stack app&mdash; **J**avaScript, **A**PI, and **M**arkup.
 
 The app is built with React, Redux, and Redux Sagas. The source code is TypeScript.
 
