@@ -1,6 +1,8 @@
 import Papa from 'papaparse';
 import flatMap from 'lodash/flatMap';
 import keys from 'lodash/keys';
+import mapValues from 'lodash/mapValues';
+import reduce from 'lodash/reduce';
 import uniq from 'lodash/uniq';
 
 import { DataState, DoubleIndexPoints } from 'dataSlice';
@@ -99,6 +101,24 @@ function adjustExceptions(maps: DataState): DataState {
   return maps;
 }
 
+const IGNORE_FIPS = [
+  ...NEW_YORK_CITY_COUNTIES.slice(1),
+  ...KANSAS_CITY_COUNTIES.slice(1),
+  NEW_YORK_CITY,
+  KANSAS_CITY
+];
+
+function calculateTotals(maps: DataState): DataState {
+  maps.totalsByDate = mapValues(maps.byDate, (byFips) => {
+    return reduce(byFips, (total: number, county: DataPoint) => {
+      const cases = IGNORE_FIPS.includes(county.fips) ? 0 : county.cases;
+      return total + cases;
+    }, 0);
+  });
+
+  return maps;
+}
+
 function transformer(value: string, header: string) {
   if (header === 'cases' || header === 'deaths') {
     return parseInt(value);
@@ -164,6 +184,7 @@ function processData(points: DataPoint[]): DataState {
   const maps: DataState = {
     byDate: {},
     byFips: {},
+    totalsByDate: {},
   };
 
   points.forEach((point: DataPoint) => {
@@ -172,7 +193,8 @@ function processData(points: DataPoint[]): DataState {
     addEntry(maps.byFips, point.fips, point.date, point);
   });
 
-  return adjustExceptions(maps);
+  const adjusted = adjustExceptions(maps);
+  return calculateTotals(adjusted);
 }
 
 export default loadData;
