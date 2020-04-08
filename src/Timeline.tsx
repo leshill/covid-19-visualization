@@ -161,7 +161,10 @@ const Timeline: React.FC = () => {
           <span className="timeline-label-end badge badge-dark">
             { endDate }
           </span>
-          <span className="timeline-label badge badge-danger" style={{left: `${percent}%`}}>
+          <span
+            className="timeline-label badge"
+            style={{left: `${percent}%`, backgroundColor: reds(currentTotal)}}
+          >
             { currentDate }
           </span>
           <span
