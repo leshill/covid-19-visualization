@@ -28,16 +28,14 @@ NYT repo for more details, the app does the following:
 
 In the case of NYC, the data is reported for the entire city (and not for each
 of the five boroughs). Unfortunately, the map shows the five boroughs. Rather
-than attempt to split the count into 5, each borough is shown with the total
-for NYC. NYC should be considered equivalent to other counties.
+than attempt to split the count into 5, each borough is shown with the total for
+NYC. The 5 boroughs/counties of NYC should be considered a single joint entry.
 
 In the case of KC, the data is reported for the entire city across four
-counties, and for each of the four counties _excluding_ the city. Not ideal. For
-now, the data from the city is added to the count for each county. An alternative
-would be to sum up the counties and the city and use that total across the four
-counties and consider KC equivalent to other counties.
-
-Hmmm, I should probably do that :upside\_down\_face:
+counties, and for each of the four counties _excluding_ the city. Not ideal. The
+four counties for KC are represented as a unit with a single count, summed from
+each county and the city count. Like NYC, the four KC counties should be
+considered a single joint entry.
 
 ## Colophon
 
