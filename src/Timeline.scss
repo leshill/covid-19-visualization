@@ -92,6 +92,7 @@
   }
 
   .timeline-label {
+    color: white;
     top: 100%;
     margin-left: -40px;
     margin-top: .5rem;
@@ -107,6 +108,14 @@
 
   .timeline-label-start {
     left: 0%;
+    margin-left: -40px;
+    margin-top: -1.5rem;
+    @include label;
+  }
+
+  .timeline-label-total {
+    color: white;
+    left: 50%;
     margin-left: -40px;
     margin-top: -1.5rem;
     @include label;

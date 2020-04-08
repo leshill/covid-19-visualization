@@ -1,4 +1,9 @@
 import Papa from 'papaparse';
+import flatMap from 'lodash/flatMap';
+import keys from 'lodash/keys';
+import mapValues from 'lodash/mapValues';
+import reduce from 'lodash/reduce';
+import uniq from 'lodash/uniq';
 
 import { DataState, DoubleIndexPoints } from 'dataSlice';
 
@@ -35,33 +40,38 @@ function addEntry(map: DoubleIndexPoints, key1: string, key2: string, point: Dat
   }
 }
 
-function adjustEntry(map: DoubleIndexPoints, key1: string, key2: string, blank: DataPoint) {
-  if (map[key1]) {
-    if (map[key1][key2]) {
-      const point = map[key1][key2];
-      point.cases = point.cases + blank.cases;
-      point.deaths = point.cases + blank.deaths;
-    } else {
-      map[key1][key2] = blank;
-    }
-  } else {
-    map[key1] = {[key2]: blank};
-  }
-}
+function adjustKC(
+  maps: DataState,
+  date: string,
+  cases: number,
+  deaths: number
+) {
+  const countiesOnDate = KANSAS_CITY_COUNTIES.map((fips) => (
+      maps.byDate[date][fips] || {
+        date,
+        fips,
+        cases: 0,
+        deaths: 0,
+        county: KANSAS_CITY_MAP[fips],
+        state: 'Missouri'
+      }
+    )
+  );
 
-function adjustKC(maps: DataState, date: string, fips: string, cases: number, deaths: number) {
-  const blank1: DataPoint = {
-    date,
-    fips,
-    cases,
-    deaths,
-    county: KANSAS_CITY_MAP[fips],
-    state: 'Missouri'
-  };
-  const blank2 = {...blank1}
+  const caseTotal = countiesOnDate
+    .reduce((total, county) => (total + county.cases), cases);
+  const deathTotal = countiesOnDate
+    .reduce((total, county) => (total + county.deaths), deaths);
 
-  adjustEntry(maps.byDate, date, fips, blank1);
-  adjustEntry(maps.byFips, fips, date, blank2);
+  countiesOnDate.forEach((county) => {
+    county.cases = caseTotal;
+    county.deaths = deathTotal;
+
+    const county2 = {...county};
+
+    addEntry(maps.byDate, date, county.fips, county);
+    addEntry(maps.byFips, county.fips, date, county2);
+  });
 }
 
 function adjustExceptions(maps: DataState): DataState {
@@ -76,13 +86,34 @@ function adjustExceptions(maps: DataState): DataState {
     });
   });
 
+  const datesWithData = kcDates(maps.byFips);
+
   const kc = maps.byFips[KANSAS_CITY];
 
-  Object.values(kc).forEach((point) => {
-    const { date, cases, deaths } = point;
-    KANSAS_CITY_COUNTIES.forEach((fips) => {
-      adjustKC(maps, date, fips, cases, deaths);
-    });
+  datesWithData.forEach((date) => {
+    const kcData = kc[date];
+    const cases = kcData ? kcData.cases : 0;
+    const deaths = kcData ? kcData.deaths : 0;
+
+    adjustKC(maps, date, cases, deaths);
+  })
+
+  return maps;
+}
+
+const IGNORE_FIPS = [
+  ...NEW_YORK_CITY_COUNTIES.slice(1),
+  ...KANSAS_CITY_COUNTIES.slice(1),
+  NEW_YORK_CITY,
+  KANSAS_CITY
+];
+
+function calculateTotals(maps: DataState): DataState {
+  maps.totalsByDate = mapValues(maps.byDate, (byFips) => {
+    return reduce(byFips, (total: number, county: DataPoint) => {
+      const cases = IGNORE_FIPS.includes(county.fips) ? 0 : county.cases;
+      return total + cases;
+    }, 0);
   });
 
   return maps;
@@ -114,9 +145,23 @@ function fetchCSV() {
   });
 }
 
+function kcDates(fipsMap: DoubleIndexPoints) {
+  const dates = flatMap([...KANSAS_CITY_COUNTIES, KANSAS_CITY], (fips) => {
+    if (fipsMap[fips]) {
+      return keys(fipsMap[fips]);
+    } else {
+      return [];
+    }
+  });
+
+  return uniq(dates);
+}
+
 async function loadData(): Promise<DataState>  {
   return fetchCSV().then((data: DataPoint[]) => processData(data));
 }
+const unknownMap = {} as Record<string, string>;
+var unknownId = 99000;
 
 function markExceptions(point: DataPoint): DataPoint {
   if (!point.fips) {
@@ -124,8 +169,14 @@ function markExceptions(point: DataPoint): DataPoint {
       point.fips = NEW_YORK_CITY;
     } else if (point.county === 'Kansas City') {
       point.fips = KANSAS_CITY;
+    } else if (unknownMap[point.state]) {
+      point.fips = unknownMap[point.state];
+    } else {
+      unknownMap[point.state] = unknownId + '';
+      ++unknownId;
     }
   }
+
   return point;
 }
 
@@ -133,6 +184,7 @@ function processData(points: DataPoint[]): DataState {
   const maps: DataState = {
     byDate: {},
     byFips: {},
+    totalsByDate: {},
   };
 
   points.forEach((point: DataPoint) => {
@@ -141,7 +193,8 @@ function processData(points: DataPoint[]): DataState {
     addEntry(maps.byFips, point.fips, point.date, point);
   });
 
-  return adjustExceptions(maps);
+  const adjusted = adjustExceptions(maps);
+  return calculateTotals(adjusted);
 }
 
 export default loadData;
