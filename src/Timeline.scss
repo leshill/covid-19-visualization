@@ -111,4 +111,12 @@
     margin-top: -1.5rem;
     @include label;
   }
+
+  .timeline-label-total {
+    color: white;
+    left: 50%;
+    margin-left: -40px;
+    margin-top: -1.5rem;
+    @include label;
+  }
 };

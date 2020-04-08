@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Dispatch } from 'redux';
 import { useDispatch, useSelector } from 'react-redux';
+import pad from 'lodash/pad';
 
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
@@ -19,6 +20,7 @@ import { AppThunk, RootState } from 'reducers';
 import { getNextState, getPrevState, getStateForDate } from 'sagas';
 import { finish, next, pause, prev, reload, reset, run } from 'flowSlice';
 import { days, fromISO, nextDay } from 'dateUtils';
+import reds from 'reds';
 
 function percentPosition(start: string, current: string, last: string) {
   const cDate = nextDay(current);
@@ -30,31 +32,31 @@ function percentPosition(start: string, current: string, last: string) {
 
 function goToEnd(): AppThunk {
   return (dispatch: Dispatch, getState: () => RootState) => {
-    const { fipsMap } =
+    const { fipsMap, currentTotal } =
       getStateForDate(getState(), (state) => state.flow.endDate);
-    dispatch(finish(fipsMap));
+    dispatch(finish({fipsMap, currentTotal}));
   }
 }
 
 function goToStart(): AppThunk {
   return (dispatch: Dispatch, getState: () => RootState) => {
-    const { fipsMap } =
+    const { fipsMap, currentTotal } =
       getStateForDate(getState(), (state) => state.flow.startDate);
-    dispatch(reset(fipsMap));
+    dispatch(reset({fipsMap, currentTotal}));
   }
 }
 
 function stepBackward(): AppThunk {
   return (dispatch: Dispatch, getState: () => RootState) => {
-    const { date, fipsMap } = getPrevState(getState());
-    dispatch(prev({date, fipsMap}));
+    const { date, fipsMap, currentTotal } = getPrevState(getState());
+    dispatch(prev({date, fipsMap, currentTotal}));
   }
 }
 
 function stepForward(): AppThunk {
   return (dispatch: Dispatch, getState: () => RootState) => {
-    const { date, fipsMap } = getNextState(getState());
-    dispatch(next({date, fipsMap}));
+    const { date, fipsMap, currentTotal } = getNextState(getState());
+    dispatch(next({date, fipsMap, currentTotal}));
   }
 }
 
@@ -62,6 +64,7 @@ const Timeline: React.FC = () => {
   const {
     commitMessage,
     currentDate,
+    currentTotal,
     endDate,
     startDate,
     step
@@ -160,6 +163,12 @@ const Timeline: React.FC = () => {
           </span>
           <span className="timeline-label badge badge-danger" style={{left: `${percent}%`}}>
             { currentDate }
+          </span>
+          <span
+            className="timeline-label-total badge"
+            style={{backgroundColor: reds(currentTotal)}}
+          >
+            total:{pad(currentTotal + '', 8)}
           </span>
         </div>
       </div>

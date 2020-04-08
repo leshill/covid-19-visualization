@@ -32,6 +32,7 @@ interface FlowState {
   commitMessage: string,
   currentDataByFips: DataPoints,
   currentDate: string,
+  currentTotal: number,
   endDate: string,
   errorMessage: string,
   latestCommit: string,
@@ -45,6 +46,7 @@ const initialState: FlowState  = {
   commitMessage: '',
   currentDataByFips: {} as DataPoints,
   currentDate: '2020-01-01',
+  currentTotal: 0,
   endDate: '2020-12-31',
   errorMessage: '',
   latestCommit: '',
@@ -61,9 +63,13 @@ const flowSlice = createSlice({
       state.step = 'error' as Machine;
       state.errorMessage = action.payload;
     },
-    finish(state: FlowState, action: PayloadAction<DataPoints>) {
+    finish(state: FlowState, action: PayloadAction<{
+      fipsMap: DataPoints,
+      currentTotal: number
+    }>) {
       if (state.step === 'paused') {
-        state.currentDataByFips = action.payload;
+        state.currentDataByFips = action.payload.fipsMap;
+        state.currentTotal = action.payload.currentTotal;
         state.currentDate = state.endDate;
       }
     },
@@ -80,17 +86,19 @@ const flowSlice = createSlice({
         state.commitMessage = 'This is the latest data available.';
       }
     },
-    next(state: FlowState, action: PayloadAction<{date: string, fipsMap: DataPoints}>) {
+    next(state: FlowState, action: PayloadAction<{
+      date: string,
+      fipsMap: DataPoints,
+      currentTotal: number
+    }>) {
       if (state.step === 'running' || state.step === 'paused') {
         const proposed = fromISO(action.payload.date);
         const finish = fromISO(state.endDate);
 
-        if (proposed < finish) {
+        if (proposed <= finish) {
           state.currentDataByFips = action.payload.fipsMap;
           state.currentDate = action.payload.date;
-        } else if (+proposed === +finish) {
-          state.currentDataByFips = action.payload.fipsMap;
-          state.currentDate = action.payload.date;
+          state.currentTotal = action.payload.currentTotal;
         }
       }
     },
@@ -100,17 +108,19 @@ const flowSlice = createSlice({
         state.message = action.payload;
       }
     },
-    prev(state: FlowState, action: PayloadAction<{date: string, fipsMap: DataPoints}>) {
+    prev(state: FlowState, action: PayloadAction<{
+      date: string,
+      fipsMap: DataPoints,
+      currentTotal: number
+    }>) {
       if (state.step === 'running' || state.step === 'paused') {
         const proposed = fromISO(action.payload.date);
         const start = fromISO(state.startDate);
 
-        if (proposed > start) {
+        if (proposed >= start) {
           state.currentDataByFips = action.payload.fipsMap;
           state.currentDate = action.payload.date;
-        } else if (+proposed === +start) {
-          state.currentDataByFips = action.payload.fipsMap;
-          state.currentDate = action.payload.date;
+          state.currentTotal = action.payload.currentTotal;
         } else if (state.step === 'running') {
           state.step = 'paused' as Machine;
         }
@@ -121,7 +131,8 @@ const flowSlice = createSlice({
       action: PayloadAction<{
         fipsMap: DataPoints,
         endDate: string,
-        startDate: string
+        startDate: string,
+        currentTotal: number
       }>) {
       if (state.step === 'loading') {
         state.step = 'running' as Machine;
@@ -129,6 +140,7 @@ const flowSlice = createSlice({
         state.endDate = action.payload.endDate;
         state.startDate = action.payload.startDate;
         state.currentDataByFips = action.payload.fipsMap;
+        state.currentTotal = action.payload.currentTotal;
         state.message = 'Running';
         state.latestCommit = state.currentCommit = '';
         state.commitMessage = '';
@@ -139,10 +151,11 @@ const flowSlice = createSlice({
         return {...initialState, step: 'loading'};
       }
     },
-    reset(state: FlowState, action: PayloadAction<DataPoints>) {
+    reset(state: FlowState, action: PayloadAction<{fipsMap: DataPoints, currentTotal: number}>) {
       if (state.step === 'paused' || state.step === 'running') {
         state.currentDate = state.startDate;
-        state.currentDataByFips = action.payload;
+        state.currentDataByFips = action.payload.fipsMap;
+        state.currentTotal = action.payload.currentTotal;
       }
     },
     run(state: FlowState) {

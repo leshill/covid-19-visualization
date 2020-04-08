@@ -33,7 +33,8 @@ function* fetchData() {
 
     const dates = Object.keys(maps.byDate).sort();
     const fipsMap = maps.byDate[dates[0]] || {} as DataPoints;
-    yield put(ready({fipsMap, startDate: dates[0], endDate: dates[dates.length -1]}));
+    const currentTotal = maps.totalsByDate[dates[0]] || 0;
+    yield put(ready({fipsMap, startDate: dates[0], endDate: dates[dates.length -1], currentTotal}));
     yield fetchCommit();
   }
   catch(error) {
@@ -43,10 +44,11 @@ function* fetchData() {
 
 export function getStateForDate(state: RootState,
                                 dateFn: (state: RootState) => string) {
-  const {data: {byDate}} = state;
+  const {data: {byDate, totalsByDate}} = state;
   const date = dateFn(state);
   const fipsMap = byDate[date] || {} as DataPoint;
-  return {date, fipsMap};
+  const currentTotal = totalsByDate[date] || 0;
+  return {date, currentTotal, fipsMap};
 }
 
 export function getPrevState(state: RootState) {
@@ -97,13 +99,13 @@ function* runSteps() {
     yield take(stepChannel);
 
     const state = yield select((state: RootState) => state);
-    const {date, fipsMap} = getNextState(state);
+    const {date, fipsMap, currentTotal} = getNextState(state);
 
     const proposed = fromISO(date);
     const finish = fromISO(state.flow.endDate);
 
     if (proposed <= finish) {
-      yield put(next({date, fipsMap}));
+      yield put(next({date, fipsMap, currentTotal}));
     } else {
       yield put(pause('Done'));
     }
