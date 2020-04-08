@@ -140,6 +140,8 @@ function kcDates(fipsMap: DoubleIndexPoints) {
 async function loadData(): Promise<DataState>  {
   return fetchCSV().then((data: DataPoint[]) => processData(data));
 }
+const unknownMap = {} as Record<string, string>;
+var unknownId = 99000;
 
 function markExceptions(point: DataPoint): DataPoint {
   if (!point.fips) {
@@ -147,8 +149,14 @@ function markExceptions(point: DataPoint): DataPoint {
       point.fips = NEW_YORK_CITY;
     } else if (point.county === 'Kansas City') {
       point.fips = KANSAS_CITY;
+    } else if (unknownMap[point.state]) {
+      point.fips = unknownMap[point.state];
+    } else {
+      unknownMap[point.state] = unknownId + '';
+      ++unknownId;
     }
   }
+
   return point;
 }
 
