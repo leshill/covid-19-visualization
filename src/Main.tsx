@@ -4,6 +4,7 @@ import 'Main.scss';
 
 import { FaGithub, FaHeart } from 'react-icons/fa';
 
+import DataBox from 'DataBox';
 import Map from 'Map';
 import Timeline from 'Timeline';
 
@@ -65,6 +66,7 @@ function Main() {
           Copyright &copy; 2020 Les Hill
         </small>
       </div>
+      <DataBox/>
     </div>
   );
 }
