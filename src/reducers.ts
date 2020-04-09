@@ -3,10 +3,12 @@ import { ThunkAction } from 'redux-thunk';
 
 import dataReducer from 'dataSlice';
 import flowReducer from 'flowSlice';
+import popoverReducer from 'popoverSlice';
 
 const reducer = combineReducers({
   data: dataReducer,
-  flow: flowReducer
+  flow: flowReducer,
+  popover: popoverReducer
 });
 
 export type RootState = ReturnType<typeof reducer>;

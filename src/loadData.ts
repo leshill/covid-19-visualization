@@ -29,8 +29,10 @@ const KANSAS_CITY_MAP: {[key: string]: string} = {
   '29095': 'Jackson',
   '29165': 'Platte'
 };
+const KANSAS_CITY_TEXT = 'Kansas City';
 const NEW_YORK_CITY = '99998';
 const NEW_YORK_CITY_COUNTIES = ['36005', '36047', '36061', '36081', '36085'];
+const NEW_YORK_CITY_TEXT = 'New York City';
 
 function addEntry(map: DoubleIndexPoints, key1: string, key2: string, point: DataPoint) {
   if (map[key1]) {
@@ -117,6 +119,16 @@ function calculateTotals(maps: DataState): DataState {
   });
 
   return maps;
+}
+
+export function countyName(point: DataPoint) {
+  if (NEW_YORK_CITY_COUNTIES.includes(point.fips)) {
+    return NEW_YORK_CITY_TEXT;
+  } else if (KANSAS_CITY_COUNTIES.includes(point.fips)) {
+    return KANSAS_CITY_TEXT;
+  }
+
+  return point.county;
 }
 
 function transformer(value: string, header: string) {

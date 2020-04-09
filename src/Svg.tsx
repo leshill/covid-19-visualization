@@ -1,10 +1,11 @@
 import React, { useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import * as SvgTypes from './svgTypes';
 import { RootState } from 'reducers';
 import reds from 'reds';
 import { DataPoint } from 'loadData';
+import { hidePopover, showPopover } from 'popover';
 
 type SvgCore = SvgTypes.CoreProps &
                SvgTypes.EventProps &
@@ -27,6 +28,7 @@ type PathPropsType = SvgTypes.PathProps & SvgCore;
 export const Path: React.FC<PathPropsType> = (props) => {
   const fips = props.id;
 
+  const dispatch = useDispatch();
   const selector = useCallback((state: RootState) => {
     if (fips) {
       const data = state.flow.currentDataByFips[fips];
@@ -44,9 +46,17 @@ export const Path: React.FC<PathPropsType> = (props) => {
     rest.style = {fill: reds(data.cases)};
   }
 
-  return <path {...rest}>
-    { children }
-  </path>;
+  rest.onMouseEnter = (event: React.MouseEvent) => {
+    if (fips && data.cases) {
+      const rect = (event.target as any).getBoundingClientRect();
+      dispatch(showPopover(rect, data));
+    }
+  };
+  rest.onMouseLeave = (_event: React.MouseEvent) => dispatch(hidePopover());
+
+  return (
+    <path {...rest}/>
+  );
 }
 
 export default Svg;
