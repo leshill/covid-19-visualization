@@ -1,6 +1,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 
+import 'DataBox.scss';
+
 import { RootState } from 'reducers';
 import { countyName } from 'loadData';
 import reds from 'reds';
