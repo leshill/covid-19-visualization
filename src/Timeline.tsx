@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { Dispatch } from 'redux';
 import { useDispatch, useSelector } from 'react-redux';
-import pad from 'lodash/pad';
 
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
@@ -171,7 +170,7 @@ const Timeline: React.FC = () => {
             className="timeline-label-total badge"
             style={{backgroundColor: reds(currentTotal)}}
           >
-            total:{pad(currentTotal + '', 8)}
+            total: {currentTotal}
           </span>
         </div>
       </div>
