@@ -46,7 +46,7 @@ export const Path: React.FC<PathPropsType> = (props) => {
     rest.style = {fill: reds(data.cases)};
     rest.onMouseEnter = (event: React.MouseEvent) => {
       const rect = (event.target as any).getBoundingClientRect();
-      dispatch(showPopover(rect, data));
+      dispatch(showPopover(fips, rect, data));
     };
   }
 
