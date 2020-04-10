@@ -44,14 +44,12 @@ export const Path: React.FC<PathPropsType> = (props) => {
 
   if (fips && data.cases) {
     rest.style = {fill: reds(data.cases)};
+    rest.onMouseEnter = (event: React.MouseEvent) => {
+      const rect = (event.target as any).getBoundingClientRect();
+      dispatch(showPopover(fips, rect, data));
+    };
   }
 
-  rest.onMouseEnter = (event: React.MouseEvent) => {
-    if (fips && data.cases) {
-      const rect = (event.target as any).getBoundingClientRect();
-      dispatch(showPopover(rect, data));
-    }
-  };
   rest.onMouseLeave = (_event: React.MouseEvent) => dispatch(hidePopover());
 
   return (
