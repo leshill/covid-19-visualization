@@ -2,11 +2,22 @@ import React from 'react';
 
 import 'Main.scss';
 
-import { FaGithub, FaHeart } from 'react-icons/fa';
+import { FaFacebookF, FaGithub, FaHeart, FaTwitter } from 'react-icons/fa';
 
 import DataBox from 'DataBox';
 import Map from 'Map';
 import Timeline from 'Timeline';
+
+const SITE_URL = encodeURI('https://covid-19-map.leshill.app/');
+const TWITTER_LINK = 'https://twitter.com/intent/tweet?' +
+                     'text=' + encodeURI('Awesome Covid-19 timeline in the US by county\n') +
+                     '&url=' + SITE_URL +
+                     '&hashtags=covid_19,visualization' +
+                     '&via=leshill';
+
+const FACEBOOK_LINK = 'http://www.facebook.com/sharer.php?' +
+                      'u=' + SITE_URL;
+
 
 function Main() {
   return (
@@ -18,17 +29,31 @@ function Main() {
         <h4>
           Data from The New York Times, based on reports from state and local health agencies.
         </h4>
-        <div className="made-with">
-          <span>
-            Made with
-          </span>
-          <FaHeart className="mx-1" color="red"/>
-          <span>
-            in Seattle by
-          </span>
-          <a className="ml-1 stretched-link" href="https://twitter.com/leshill">
-            @leshill
-          </a>
+        <div className="sharing">
+          <div className="share facebook">
+            <a className="stretched-link" href={FACEBOOK_LINK} target="_blank" rel="noopener noreferrer">
+              Share on Facebook
+            </a>
+            <FaFacebookF className="ml-1" color="rgb(45,69,134)"/>
+          </div>
+          <div className="share made-with">
+            <span>
+              Made with
+            </span>
+            <FaHeart className="mx-1" color="red"/>
+            <span>
+              in Seattle by
+            </span>
+            <a className="ml-1 stretched-link" href="https://twitter.com/leshill">
+              @leshill
+            </a>
+          </div>
+          <div className="share twitter">
+            <a className="stretched-link" href={TWITTER_LINK} target="_blank" rel="noopener noreferrer">
+              Share on Twitter
+            </a>
+            <FaTwitter className="ml-1" color="rgb(29,141,238)"/>
+          </div>
         </div>
       </header>
       <Timeline/>

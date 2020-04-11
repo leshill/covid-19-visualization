@@ -33,7 +33,42 @@ header {
   background-color: $jumbotron-bg;
 }
 
-.made-with {
+.sharing {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+
+    .facebook {
+      order: 1 !important;
+    }
+
+    .made-with {
+      order: 2 !important;
+    }
+
+    .twitter {
+      order: 3 !important;
+    }
+  }
+
+  .facebook {
+    order: 3;
+  }
+
+  .made-with {
+    order: 1;
+  }
+
+  .twitter {
+    order: 2;
+  }
+}
+
+.share {
   display: flex;
   justify-content: center;
   align-items: center;
