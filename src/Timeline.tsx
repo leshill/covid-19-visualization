@@ -129,7 +129,7 @@ const Timeline: React.FC = () => {
             Data is usually updated once a day.
           </small>
         </div>
-        <div className="col-md timeline-head">
+        <div className="col-md timeline-head-center">
           <ButtonToolbar>
             <ButtonGroup size="sm" className="mr-1">
               <Button variant="dark" onClick={onGotoStart} disabled={notRunningOrPaused}>

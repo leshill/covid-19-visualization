@@ -24,6 +24,9 @@
 }
 
 @mixin timeline-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .timeline-container {
@@ -38,29 +41,55 @@
     }
   }
 
-  .timeline-head, .timeline-head-left, .timeline-head-right {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .timeline-head {
+    @include timeline-head;
 
     small {
       padding: .25em 0;
     }
+
+    .timeline-head-center {
+      @include timeline-head;
+      order: 1;
+    }
+
+    .timeline-head-left {
+      @include timeline-head;
+      order: 2;
+    }
+
+    .timeline-head-right {
+      @include timeline-head;
+      order: 3;
+
+      small {
+        padding-top: 0;
+      }
+    }
   }
 
   @media (min-width: 768px) {
-    .timeline-head, .timeline-head-left, .timeline-head-right {
+    .timeline-head,
+    .timeline-head-center,
+    .timeline-head-left,
+    .timeline-head-right {
       small {
         padding: 0;
       }
     }
 
+    .timeline-head-center {
+      order: 2 !important;
+    }
+
     .timeline-head-left {
       justify-content: flex-end;
+      order: 1 !important;
     }
 
     .timeline-head-right {
       justify-content: flex-start;
+      order: 3 !important;
     }
   }
 }
