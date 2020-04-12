@@ -81,11 +81,25 @@ header {
 }
 
 .github-container {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
   margin-bottom: 1em;
   margin-top: 1em;
+
+  .github-link {
+    display: flex;
+    align-items: center;
+  }
+
+  .github-link + .github-link {
+    margin-top: 0.5em;
+  }
+
+  .github-label {
+    text-align: center;
+  }
+
+  .github-repo {
+    text-align: center;
+  }
 
   .github {
     display: inline-flex;
@@ -102,13 +116,15 @@ header {
     :first-child {
       padding-right: 8px;
     }
-
-    span {
-      flex-grow: 0;
-    }
   }
 
-  .github + .github {
-    margin-left: 2em;
+  @media (min-width: 576px) {
+    .github-label {
+      text-align: right;
+    }
+
+    .github-repo {
+      text-align: left;
+    }
   }
 }
