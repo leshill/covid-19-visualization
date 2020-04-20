@@ -63,28 +63,40 @@ function Main() {
         />
       </div>
       <div className="github-container w-100">
-        <span className="mr-3">
-          FAQ and Source code:
-        </span>
-        <a
-          className="btn btn-sm github"
-          href="https://github.com/leshill/covid-19-visualization">
-          <FaGithub size="1.75em" />
-          <span>
-            @leshill/covid-19-data-visualization
-          </span>
-        </a>
-        <span className="mx-3">
-          Source data:
-        </span>
-        <a
-          className="btn btn-sm github"
-          href="https://github.com/nytimes/covid-19-data">
-          <FaGithub size="1.75em" />
-          <span>
-            @nytimes/covid-19-data
-          </span>
-        </a>
+        <div className="github-link row">
+          <div className="github-label col-sm">
+            <span>
+              FAQ and Source code:
+            </span>
+          </div>
+          <div className="col-sm github-repo">
+            <a
+              className="github btn btn-sm stretched-link"
+              href="https://github.com/leshill/covid-19-visualization">
+              <FaGithub size="1.75em" />
+              <span>
+                @leshill/covid-19-visualization
+              </span>
+            </a>
+          </div>
+        </div>
+        <div className="github-link row">
+          <div className="github-label col-sm">
+            <span>
+              Source data:
+            </span>
+          </div>
+          <div className="github-repo col-sm">
+            <a
+              className="github btn btn-sm stretched-link"
+              href="https://github.com/nytimes/covid-19-data">
+              <FaGithub size="1.75em" />
+              <span>
+                @nytimes/covid-19-data
+              </span>
+            </a>
+          </div>
+        </div>
       </div>
       <div className="w-100 d-flex justify-content-end">
         <small className="mr-5">
