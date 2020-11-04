@@ -147,8 +147,8 @@ function fetchCSV() {
       fastMode: true,
       dynamicTyping: false,
       transform: transformer,
-      complete: (results: Papa.ParseResult) => {
-        resolve(results.data as DataPoint[]);
+      complete: (results: Papa.ParseResult<DataPoint>) => {
+        resolve(results.data);
       },
       error: (error: Papa.ParseError) => {
         reject(new Error(error.message));
